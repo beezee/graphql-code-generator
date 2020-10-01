@@ -1,5 +1,11 @@
 # @graphql-codegen/cli
 
+## 1.18.0
+
+### Minor Changes
+
+- ceb9fe0c: Changes watch mode to not use polling by default and adds configurable override
+
 ## 1.17.10
 
 ### Patch Changes
