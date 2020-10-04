@@ -106,16 +106,20 @@ describe('TypeScript', () => {
     });
 
     it('Should work with types', async () => {
-      const schema = buildSchema(/* GraphQL */ `
-        "this is b"
-        type B {
-          id: ID
-        }
-        "this is c"
-        type C {
-          id: ID
-        }
-      `);
+      const schema = buildSchema(
+        /* GraphQL */ `
+          "this is b"
+          type B @wrapWith(type: "Saved") {
+            id: ID
+          }
+          "this is c"
+          type C {
+            id: ID
+            b: B!
+          }
+        `,
+        { assumeValidSDL: true }
+      );
       const result = await plugin(schema, [], {}, { outputFile: '' });
 
       expect(result.content).toBeSimilarStringTo(`
@@ -125,6 +129,8 @@ describe('TypeScript', () => {
       expect(result.content).toBeSimilarStringTo(`
         /** this is c */
         export type C = `);
+      expect(result.content).toBeSimilarStringTo(`
+        b: Saved<B>`);
     });
 
     it('Should work with type fields', async () => {

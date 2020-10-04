@@ -116,7 +116,16 @@ export class TsVisitor<
   }
 
   NamedType(node: NamedTypeNode, key, parent, path, ancestors): string {
-    return `Maybe<${super.NamedType(node, key, parent, path, ancestors)}>`;
+    const astNode = this._schema.getType(node.name as any).astNode;
+    let wrapType: string | null = null;
+    if (astNode && astNode.directives) {
+      const wrap = astNode.directives.find(d => d.name.value === 'wrapWith');
+      if (wrap && 'value' in wrap.arguments[0].value && typeof wrap.arguments[0].value.value === 'string')
+        wrapType = wrap.arguments[0].value.value;
+    }
+    const preWrap = wrapType ? `${wrapType}<` : '';
+    const postWrap = wrapType ? '>' : '';
+    return `Maybe<${preWrap}${super.NamedType(node, key, parent, path, ancestors)}${postWrap}>`;
   }
 
   ListType(node: ListTypeNode): string {
